@@ -1,0 +1,6 @@
+payment_method_id,payment_method_name
+1,PayPal
+2,Visa
+3,Mastercard
+4,Cash on Delivery
+5,Gift Card

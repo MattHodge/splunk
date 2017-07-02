@@ -1,7 +1,7 @@
 version: '2'
 services:
   splunk:
-    image: splunk/splunk
+    image: splunk/splunk:6.6.1
     hostname: splunkenterprise
     environment:
       SPLUNK_START_ARGS: --accept-license --answer-yes
@@ -14,7 +14,7 @@ services:
       - "8088:8088"
       - "1514:1514"
   splunkunifwd:
-    image: splunk/universalforwarder
+    image: splunk/universalforwarder:6.6.1
     hostname: splunkuniversalforwarder
     environment:
       SPLUNK_START_ARGS: --accept-license --answer-yes
