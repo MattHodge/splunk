@@ -7,22 +7,11 @@ services:
       SPLUNK_START_ARGS: --accept-license --answer-yes
       SPLUNK_ENABLE_LISTEN: 9997
       SPLUNK_ADD: tcp 1514
+      SPLUNK_ADD_1: udp 1515
       SPLUNK_USER: root
     ports:
       - "8000:8000"
       - "9997:9997"
       - "8088:8088"
       - "1514:1514"
-  splunkunifwd:
-    image: splunk/universalforwarder:6.6.1
-    hostname: splunkuniversalforwarder
-    environment:
-      SPLUNK_START_ARGS: --accept-license --answer-yes
-      SPLUNK_FORWARD_SERVER: splunk:9997
-      SPLUNK_USER: root
-      SPLUNK_ADD: udp 514
-    restart: always
-    links:
-      - splunk
-    ports:
-      - "514:514"
+      - "1515:1515/udp"
