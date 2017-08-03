@@ -9,6 +9,6 @@ do
     echo "Fake number successfully generated. fake_number=$RANDOM" > "/dev/tcp/$splunk_tcp_host/$splunk_tcp_port"
     sleep 1
     echo "Fake number generator finishing." > "/dev/tcp/$splunk_tcp_host/$splunk_tcp_port"
-	sleep 5
+    sleep 5
     echo "Looping..."
 done
