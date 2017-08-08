@@ -40,7 +40,7 @@ while ($true)
 {
     Send-TCPMessage -EndPoint $splunk_tcp_host -Port $splunk_tcp_port -Message "Random number generator starting."
     Start-Sleep -Seconds 1
-    Send-TCPMessage -EndPoint $splunk_tcp_host -Port $splunk_tcp_port -Message "Random number successfully generated. fake_number=$(Get-Random) fake_number_2=$(Get-Random)"
+    Send-TCPMessage -EndPoint $splunk_tcp_host -Port $splunk_tcp_port -Message "Random number successfully generated. random_number=$(Get-Random) random_number_2=$(Get-Random)"
     Start-Sleep -Seconds 5
     Send-TCPMessage -EndPoint $splunk_tcp_host -Port $splunk_tcp_port -Message "Random number generator finishing."
     Start-Sleep -Seconds 60
