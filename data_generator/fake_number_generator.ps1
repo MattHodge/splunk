@@ -42,9 +42,9 @@ while ($true)
     Send-TCPMessage -EndPoint $splunk_tcp_host -Port $splunk_tcp_port -Message "Fake number generator starting."
     Start-Sleep -Seconds 1
     Send-TCPMessage -EndPoint $splunk_tcp_host -Port $splunk_tcp_port -Message "Fake number successfully generated. fake_number=$($randomNumber)"
-    Start-Sleep -Seconds 1
-    Send-TCPMessage -EndPoint $splunk_tcp_host -Port $splunk_tcp_port -Message "Fake number generator finishing."
     Start-Sleep -Seconds 5
+    Send-TCPMessage -EndPoint $splunk_tcp_host -Port $splunk_tcp_port -Message "Fake number generator finishing."
+    Start-Sleep -Seconds 60
     Write-Output "Looping..."
 }
 
