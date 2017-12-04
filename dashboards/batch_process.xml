@@ -1,0 +1,190 @@
+<form>
+    <label>Batch Process</label>
+    <fieldset submitButton="false">
+        <input type="time" token="time_picker">
+            <label></label>
+            <default>
+                <earliest>-24h@h</earliest>
+                <latest>now</latest>
+            </default>
+        </input>
+        <input type="dropdown" token="job_name" searchWhenChanged="true">
+            <label>Batch Job</label>
+            <fieldForLabel>job_name</fieldForLabel>
+            <fieldForValue>job_name</fieldForValue>
+            <search>
+                <query>index=main "Starting Process" | dedup "job_name" | table job_name</query>
+                <earliest>-24h@h</earliest>
+                <latest>now</latest>
+            </search>
+        </input>
+    </fieldset>
+    <row>
+        <panel>
+            <title>Execution Statuses</title>
+            <single>
+                <title>Unfinished batch jobs</title>
+                <search>
+                    <query>index=main job_name=$job_name$ job_state=* | transaction job_run_id startswith=(job_state=start) endswith=(job_state=end) maxspan=12h keepevicted=t | search closed_txn=0 | stats count</query>
+                    <earliest>$time_picker.earliest$</earliest>
+                    <latest>$time_picker.latest$</latest>
+                    <refresh>30s</refresh>
+                    <refreshType>delay</refreshType>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="rangeColors">["0x65a637","0xd93f3c"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="underLabel">Unfinished Jobs</option>
+                <option name="unitPosition">after</option>
+                <option name="useColors">1</option>
+                <option name="useThousandSeparators">1</option>
+            </single>
+            <single>
+                <title>Started Jobs</title>
+                <search>
+                    <query>job_name=$job_name$ job_run_id=* "Starting Job" | stats count</query>
+                    <earliest>$time_picker.earliest$</earliest>
+                    <latest>$time_picker.latest$</latest>
+                    <refresh>30s</refresh>
+                    <refreshType>delay</refreshType>
+                </search>
+                <option name="drilldown">none</option>
+                <option name="useColors">0</option>
+            </single>
+            <single>
+                <title>Finished Jobs</title>
+                <search>
+                    <query>job_name=$job_name$ job_run_id "Finishing Job" | stats count</query>
+                    <earliest>$time_picker.earliest$</earliest>
+                    <latest>$time_picker.latest$</latest>
+                    <refresh>30s</refresh>
+                    <refreshType>delay</refreshType>
+                </search>
+                <option name="drilldown">none</option>
+            </single>
+            <single>
+                <title>Unfinished Processes</title>
+                <search>
+                    <query>index=main job_name=$job_name$ process_state=* | transaction job_run_id startswith=(process_state=start) endswith=(process_state=end) maxspan=12h keepevicted=t | search closed_txn=0 | stats count</query>
+                    <earliest>$time_picker.earliest$</earliest>
+                    <latest>$time_picker.latest$</latest>
+                    <refresh>30s</refresh>
+                    <refreshType>delay</refreshType>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="rangeColors">["0x65a637","0xd93f3c"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="underLabel">Unfinished Processes</option>
+                <option name="unitPosition">after</option>
+                <option name="useColors">1</option>
+                <option name="useThousandSeparators">1</option>
+            </single>
+            <single>
+                <title>Started Processes</title>
+                <search>
+                    <query>job_name=$job_name$ job_run_id "Starting Process" | stats count</query>
+                    <earliest>$time_picker.earliest$</earliest>
+                    <latest>$time_picker.latest$</latest>
+                    <refresh>30s</refresh>
+                    <refreshType>delay</refreshType>
+                </search>
+                <option name="drilldown">none</option>
+            </single>
+            <single>
+                <title>Finished Processes</title>
+                <search>
+                    <query>job_name=$job_name$ job_run_id "Finished Process" | stats count</query>
+                    <earliest>$time_picker.earliest$</earliest>
+                    <latest>$time_picker.latest$</latest>
+                    <refresh>30s</refresh>
+                    <refreshType>delay</refreshType>
+                </search>
+                <option name="drilldown">none</option>
+            </single>
+        </panel>
+    </row>
+    <row>
+        <panel>
+            <title>Time breakdown last 10 executions</title>
+            <chart>
+                <search>
+                    <query>job_name=$job_name$ job_name=* job_run_id=* start_time=* | chart values(time_taken) over start_time by process_name | sort -start_time | head 10</query>
+                    <earliest>$time_picker.earliest$</earliest>
+                    <latest>$time_picker.latest$</latest>
+                    <sampleRatio>1</sampleRatio>
+                </search>
+                <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+                <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+                <option name="charting.axisTitleX.text">job start time</option>
+                <option name="charting.axisTitleX.visibility">visible</option>
+                <option name="charting.axisTitleY.text">milliseconds</option>
+                <option name="charting.axisTitleY.visibility">visible</option>
+                <option name="charting.axisTitleY2.visibility">visible</option>
+                <option name="charting.axisX.scale">linear</option>
+                <option name="charting.axisY.scale">linear</option>
+                <option name="charting.axisY2.enabled">0</option>
+                <option name="charting.axisY2.scale">inherit</option>
+                <option name="charting.chart">bar</option>
+                <option name="charting.chart.bubbleMaximumSize">50</option>
+                <option name="charting.chart.bubbleMinimumSize">10</option>
+                <option name="charting.chart.bubbleSizeBy">area</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">all</option>
+                <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+                <option name="charting.chart.stackMode">stacked</option>
+                <option name="charting.chart.style">shiny</option>
+                <option name="charting.drilldown">none</option>
+                <option name="charting.layout.splitSeries">0</option>
+                <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+                <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+                <option name="charting.legend.placement">right</option>
+                <option name="trellis.enabled">0</option>
+                <option name="trellis.scales.shared">0</option>
+                <option name="trellis.size">small</option>
+                <option name="trellis.splitBy">job_run_id</option>
+            </chart>
+        </panel>
+    </row>
+    <row>
+        <panel>
+            <title>Last 4 Job's Time Breakdown</title>
+            <chart>
+                <search>
+                    <query>job_name=$job_name$ job_name=* job_run_id=* start_time=* | chart values(time_taken) over start_time by process_name | sort -start_time | head 4</query>
+                    <earliest>$time_picker.earliest$</earliest>
+                    <latest>$time_picker.latest$</latest>
+                    <sampleRatio>1</sampleRatio>
+                </search>
+                <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+                <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.axisTitleY2.visibility">collapsed</option>
+                <option name="charting.axisX.scale">linear</option>
+                <option name="charting.axisY.scale">linear</option>
+                <option name="charting.axisY2.enabled">0</option>
+                <option name="charting.axisY2.scale">inherit</option>
+                <option name="charting.chart">pie</option>
+                <option name="charting.chart.bubbleMaximumSize">50</option>
+                <option name="charting.chart.bubbleMinimumSize">10</option>
+                <option name="charting.chart.bubbleSizeBy">area</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+                <option name="charting.chart.stackMode">default</option>
+                <option name="charting.chart.style">shiny</option>
+                <option name="charting.drilldown">none</option>
+                <option name="charting.layout.splitSeries">0</option>
+                <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+                <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+                <option name="charting.legend.placement">none</option>
+                <option name="height">254</option>
+                <option name="trellis.enabled">1</option>
+                <option name="trellis.scales.shared">1</option>
+                <option name="trellis.size">medium</option>
+            </chart>
+        </panel>
+    </row>
+</form>
